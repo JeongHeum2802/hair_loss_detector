@@ -47,3 +47,11 @@ Thumbs.db
 # Wrapper (Optional: Wrapper를 공유하려면 !로 제외 해제)
 !**/gradle-wrapper.jar
 !**/maven-wrapper.jar
+
+# --- AI & Python ---
+**/__pycache__/
+*.py[cod]
+*$py.class
+ai/dataSet/
+/ai/dataSet/
+*.h5
