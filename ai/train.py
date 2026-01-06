@@ -31,18 +31,34 @@ def build_hairloss_model(input_shape=(224, 224, 3)):
     model = models.Model(inputs=base_model.input, outputs=output, name='hairloss_detector_v1')
     return model
 
+import argparse
+
 def train():
+    parser = argparse.ArgumentParser(description='Train Hair Loss Detection Model')
+    parser.add_argument('--type', type=str, required=True, choices=['forehead', 'crown'],
+                        help='Type of model to train: forehead or crown')
+    args = parser.parse_args()
+    
+    model_type = args.type
+    
     # 설정
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    DATA_DIR = os.path.join(BASE_DIR, 'dataSet')
+    # 데이터셋 경로 분리: dataSet/forehead 또는 dataSet/crown
+    DATA_DIR = os.path.join(BASE_DIR, 'dataSet', model_type)
     IMG_SIZE = (224, 224)
     BATCH_SIZE = 32
-    EPOCHS = 100
-    MODEL_SAVE_PATH = os.path.join(BASE_DIR, 'hair_loss_model.h5')
+    EPOCHS = 50
+    # 모델 저장 경로 분리: hair_loss_model_forehead.h5 또는 hair_loss_model_crown.h5
+    MODEL_SAVE_PATH = os.path.join(BASE_DIR, f'hair_loss_model_{model_type}.h5')
+
+    print(f"Training Model Type: {model_type}")
+    print(f"Data Directory: {DATA_DIR}")
+    print(f"Model Save Path: {MODEL_SAVE_PATH}")
 
     # 데이터 디렉토리가 존재하는지 확인
     if not os.path.exists(DATA_DIR):
         print(f"Error: Dataset directory '{DATA_DIR}' not found.")
+        print(f"Please create '{DATA_DIR}' and add 'normal' and 'hairloss' subfolders.")
         return
 
     print("Checking dataset...")
@@ -68,8 +84,8 @@ def train():
             seed=123,
             image_size=IMG_SIZE,
             batch_size=BATCH_SIZE,
-            label_mode='binary',
-            class_names=['normal', 'hairloss'] # 순서 일치 필수
+            label_mode='binary', # 0 또는 1
+            class_names=['normal', 'hairloss'] # normal=0, hairloss=1 로 고정
         )
         
         class_names = train_ds.class_names
@@ -78,7 +94,7 @@ def train():
 
     except Exception as e:
         print(f"Failed to load dataset: {e}")
-        print("Make sure 'ai/dataSet' contains 'hairloss' and 'normal' folders with images.")
+        print(f"Make sure '{DATA_DIR}' contains 'hairloss' and 'normal' folders with images.")
         return
 
     # 4. 모델 생성 및 컴파일
