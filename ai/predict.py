@@ -4,24 +4,28 @@ import json
 import sys
 import os
 
-def load_and_predict(image_path, model_type='forehead'):
+def load_model(model_type='forehead'):
     """
+    Load the model for the given type.
     model_type: 'forehead' or 'crown'
     """
     base_dir = os.path.dirname(os.path.abspath(__file__))
     model_filename = f'hair_loss_model_{model_type}.h5'
     model_path = os.path.join(base_dir, model_filename)
 
-    # 1. 모델 로드
     if not os.path.exists(model_path):
-        return {"error": f"Model file not found: {model_filename}"}
+        raise FileNotFoundError(f"Model file not found: {model_filename}")
     
     try:
-        # custom_objects가 필요한 경우 추가 (현재는 표준 레이어만 사용하므로 불필요할 수 있음)
         model = tf.keras.models.load_model(model_path)
+        return model
     except Exception as e:
-        return {"error": f"Failed to load model: {str(e)}"}
+        raise Exception(f"Failed to load model: {str(e)}")
 
+def predict_image(model, image_path, model_type='forehead'):
+    """
+    Predict using the loaded model.
+    """
     # 2. 이미지 전처리
     try:
         img = tf.keras.utils.load_img(image_path, target_size=(224, 224))
@@ -38,9 +42,6 @@ def load_and_predict(image_path, model_type='forehead'):
          return {"error": f"Prediction failed: {str(e)}"}
 
     # 4. 결과 해석 (JSON 생성)
-    # 0에 가까우면 정상(normal), 1에 가까우면 탈모(hairloss) 
-    # (train.py에서 class_names=['normal', 'hairloss']로 지정했으므로 normal=0, hairloss=1)
-    
     result = {
         "probability": round(probability, 4),
         "type": model_type,
@@ -55,6 +56,19 @@ def load_and_predict(image_path, model_type='forehead'):
         result["is_hairloss"] = False
 
     return result
+
+
+## 테스트용 코드
+def load_and_predict(image_path, model_type='forehead'):
+    """
+    model_type: 'forehead' or 'crown'
+    Legacy function that loads model every time.
+    """
+    try:
+        model = load_model(model_type)
+        return predict_image(model, image_path, model_type)
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     import argparse
