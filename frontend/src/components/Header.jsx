@@ -1,19 +1,26 @@
 import React from 'react';
 import { Layout, RefreshCcw } from 'lucide-react';
 
-const Header = ({ onReset }) => {
+const Header = ({ onReset, handleLoginModalOpen }) => {
   return (
     <header className="bg-white border-b border-blue-100 sticky top-0 z-10">
       <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+        {/* logo container */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
             <Layout className="text-white w-5 h-5" />
           </div>
           <h1 className="text-xl font-bold text-blue-900">HairScan AI</h1>
         </div>
-        <button onClick={onReset} className="text-slate-400 hover:text-blue-500 transition-colors">
-          <RefreshCcw className="w-5 h-5" />
-        </button>
+        {/* button container */}
+        <div className="flex items-center gap-4">
+          <button onClick={onReset} className="text-slate-400 hover:text-blue-500 transition-colors" aria-label="Reset">
+            <RefreshCcw className="w-5 h-5" />
+          </button>
+          <button onClick={handleLoginModalOpen} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm">
+            Login
+          </button>
+        </div>
       </div>
     </header>
   );

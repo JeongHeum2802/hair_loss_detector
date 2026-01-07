@@ -4,7 +4,7 @@ import uvicorn
 import shutil
 import os
 from predict import load_model, predict_image
-
+from fastapi.middleware.cors import CORSMiddleware
 models = {}
 
 @asynccontextmanager
@@ -23,6 +23,15 @@ async def lifespan(app: FastAPI):
     print("Models cleaned up.")
 
 app = FastAPI(lifespan=lifespan)
+
+# CORS 미들웨어 추가
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 도메인에서의 요청 허용 (실제 배포 시에는 구체적인 도메인 지정 권장)
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP Method 허용 (GET, POST 등)
+    allow_headers=["*"],  # 모든 헤더 허용
+)
 
 @app.get("/")
 async def root():

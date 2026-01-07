@@ -11,7 +11,7 @@ def load_model(model_type='forehead'):
     """
     base_dir = os.path.dirname(os.path.abspath(__file__))
     model_filename = f'hair_loss_model_{model_type}.h5'
-    model_path = os.path.join(base_dir, model_filename)
+    model_path = os.path.join(base_dir, 'models', model_filename)
 
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_filename}")
