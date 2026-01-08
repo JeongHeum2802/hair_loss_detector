@@ -21,18 +21,58 @@ const SignupModal = ({ onLoginClick, onClose }) => {
 
   // input handlers
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  // 회원가입 요청
+  const handleSignup = async (e) => {
+    e.preventDefault();
+
+    // 간단한 유효성 검사 (예시)
+    if (!isEmailCertified) {
+      alert("이메일 인증을 진행해 주세요.");
+      return;
+    }
+
+    if (!formData.terms) {
+      alert("이용약관에 동의해 주세요.");
+      return;
+    }
+
+    try {
+      // 백엔드 회원가입 요청 (예제 URL)
+      const response = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("회원가입이 완료되었습니다.");
+        onClose();
+        // 필요시 로그인 모달로 전환 로직 추가
+      } else {
+        alert(data.message || "회원가입에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("Signup Error:", error);
+      alert("서버 연결 중 오류가 발생했습니다.");
+    }
   };
 
   // certification
   // 인증요청
   const handleSentCertification = () => {
     // 백엔드 이메일 발송 요청 (예정)
-    
+
     setIsEamilCertificating(true);
   }
 
@@ -72,17 +112,20 @@ const SignupModal = ({ onLoginClick, onClose }) => {
       </div>
 
       {/* Form */}
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-4" onSubmit={handleSignup}>
         <div className="space-y-4 max-h-[60vh] overflow-y-auto px-1 -mx-1 login-scrollbar">
           <Input
             label="이메일"
             id="email"
+            name="email"
             type="email"
             placeholder="example@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange(e)}
           >
-            <button className="text-blue-500 font-bold hover:underline text-sm w-12"
+            <button
+              type="button"
+              className="text-blue-500 font-bold hover:underline text-sm w-12"
               onClick={handleSentCertification}
             >
               요청
@@ -95,9 +138,12 @@ const SignupModal = ({ onLoginClick, onClose }) => {
               id="certification"
               type="text"
               placeholder="인증번호를 입력해 주세요."
+              value={certificationNumber}
               onChange={(e) => handleCertificationNumberChange(e)}
             >
-              <button className="text-blue-500 font-bold hover:underline text-sm w-12"
+              <button
+                type="button"
+                className="text-blue-500 font-bold hover:underline text-sm w-12"
                 onClick={handleCertification}
               >
                 인증
@@ -112,6 +158,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
           <Input
             label="비밀번호"
             id="password"
+            name="password"
             type="password"
             placeholder="••••••••"
             value={formData.password}
@@ -121,6 +168,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
           <Input
             label="이름"
             id="name"
+            name="name"
             type="text"
             placeholder="홍길동"
             value={formData.name}
@@ -131,6 +179,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             <Input
               label="나이"
               id="age"
+              name="age"
               type="number"
               placeholder="25"
               value={formData.age}
@@ -140,6 +189,8 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             <div>
               <label className="block text-sm font-medium text-slate-600 mb-1.5 ml-1">성별</label>
               <select
+                id="gender"
+                name="gender"
                 className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all font-medium appearance-none"
                 style={{ backgroundImage: 'none' }} // Remove default arrow if needed, or keep for UX
                 value={formData.gender}
@@ -156,9 +207,10 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             <div className="flex items-center h-5 mt-0.5">
               <input
                 id="terms"
+                name="terms"
                 type="checkbox"
                 className="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 focus:ring-2 transition-all"
-                value={formData.terms}
+                checked={formData.terms}
                 onChange={(e) => handleInputChange(e)}
               />
             </div>
