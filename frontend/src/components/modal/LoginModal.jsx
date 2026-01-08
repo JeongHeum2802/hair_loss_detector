@@ -1,8 +1,12 @@
 
-import React from 'react';
+import { useState } from 'react';
+import Input from './Input';
 import { X, LogIn } from 'lucide-react';
 
 const LoginModal = ({ onSignupClick, onClose }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   return (
     <div
       className="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6 transform transition-all scale-100 animate-in zoom-in-95 duration-200"
@@ -26,23 +30,23 @@ const LoginModal = ({ onSignupClick, onClose }) => {
 
       {/* Form */}
       <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5 ml-1">이메일</label>
-          <input
-            type="email"
-            placeholder="example@email.com"
-            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all font-medium"
-          />
-        </div>
+        <Input
+          label="이메일"
+          id="email"
+          type="email"
+          placeholder="example@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5 ml-1">비밀번호</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all font-medium"
-          />
-        </div>
+        <Input
+          label="비밀번호"
+          id="password"
+          type="password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <div className="pt-2">
           <button
