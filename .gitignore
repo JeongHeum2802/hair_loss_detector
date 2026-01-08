@@ -10,7 +10,6 @@ Thumbs.db
 .factorypath
 
 # --- Frontend (React) ---
-# 프로젝트 폴더명이 'frontend'인 경우를 가정 (필요시 이름 수정)
 **/node_modules/
 **/build/
 **/dist/
@@ -22,31 +21,12 @@ Thumbs.db
 **/yarn-debug.log*
 **/yarn-error.log*
 
-# --- Backend (Spring Boot) ---
-# 프로젝트 폴더명이 'backend'인 경우를 가정
-**/bin/
-**/build/
-**/target/
-**/.gradle/
-**/out/
-
-# Backend Secrets & Logs
-**/application-local.properties
-**/application-local.yml
-**/*.log
-**/hs_err_pid*
-
-# --- Java & Build ---
-*.class
-*.jar
-*.war
-*.ear
-*.zip
-*.tar.gz
-
-# Wrapper (Optional: Wrapper를 공유하려면 !로 제외 해제)
-!**/gradle-wrapper.jar
-!**/maven-wrapper.jar
+# --- Backend (Node.js) ---
+logs/
+*.log
+.env
+.env.*
+! .env.example
 
 # --- AI & Python ---
 **/__pycache__/
