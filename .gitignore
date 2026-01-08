@@ -32,6 +32,6 @@ logs/
 **/__pycache__/
 *.py[cod]
 *$py.class
-ai/dataSet/
-/ai/dataSet/
+ai/dataSet/*
+!ai/dataSet/.gitkeep
 *.h5
