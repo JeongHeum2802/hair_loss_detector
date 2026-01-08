@@ -6,9 +6,17 @@ const mongoose  = require('mongoose');
 const http = require('http');
 
 const userRoutes = require('./routes/user');
+<<<<<<< Updated upstream
 
 app.use(express.json());
 app.use('/main', userRoutes);
+=======
+const recordRoutes = require('./routes/record');
+
+app.use(express.json());
+app.use('/main', userRoutes);
+app.use('/predict', recordRoutes);
+>>>>>>> Stashed changes
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log("몽고디비 연결 성공!");
