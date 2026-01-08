@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream:backend/routes/picture.js
-=======
 const express = require('express');
 const router = express.Router();
 
@@ -21,4 +19,3 @@ router.post(
 );
 
 module.exports = router;
->>>>>>> Stashed changes:backend/routes/record.js

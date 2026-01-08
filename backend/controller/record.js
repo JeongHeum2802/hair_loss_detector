@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream:backend/controller/picture.js
-=======
 require('dotenv').config();
 
 const Record = require('../model/record');
@@ -38,7 +36,7 @@ exports.saveForeheadPicture = async (req, res, next) => {
         foreheadPic : {imageUrl : secure_url, publicId : public_id}
     });
 
-    console.log(picture);
+    console.log(record);
     console.log(secure_url);
     console.log(public_id);
 
@@ -73,7 +71,7 @@ exports.saveCrownPicture = async (req, res, next) => {
         { new: true}
     );
 
-    console.log(picture);
+    console.log(record);
     console.log(secure_url);
     console.log(public_id);
 
@@ -87,4 +85,3 @@ exports.saveCrownPicture = async (req, res, next) => {
     res.status(500).json({message: "업로드 실패"});
 }
 }
->>>>>>> Stashed changes:backend/controller/record.js
