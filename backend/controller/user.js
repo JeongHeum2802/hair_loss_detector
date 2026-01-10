@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const EmailAuth = require('../model/emailAuth');
 const nodemailer = require('nodemailer');
+const jwt = require('jsonwebtoken');
 
 
 //회원가입
@@ -48,23 +49,55 @@ exports.logIn = async (req, res, next) => {
         });
     }
     const result = await bcrypt.compare(password, user.password);
-
-    if (result == true) {
-        console.log("로그인 성공!");
-        return res.send({
-            state: "success",
-            message: "로그인 성공!"
-        });
-    }
-
-    else {
+    if(!result){
         console.log("로그인 실패!");
         return res.send({
             state: "fail",
             message: "로그인 실패!"
         });
     }
+
+    //Access Token 발급
+    const accessToken = jwt.sign(
+        {userId: user._id},
+        process.env.JWT_ACCESS_SECRET_KEY,
+        {expiresIn: '1h'}
+    );
+
+    //Refresh Token 발급
+    const refreshToken = jwt.sign(
+        {userId : user._id},
+        process.env.JWT_REFRESH_SECRET_KEY,
+        {expiresIn: '7d'}
+    );
+
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: false, 
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.send({
+        accessToken
+    });
 }
+
+//로그아웃
+exports.logOut = async (req, res, next) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    await User.findOne(
+        {refreshToken},
+        { $unset : { refreshToken: 1}}
+    );
+
+    res.clearCookie('refreshToken');
+    res.send({message: '로그아웃'})
+};
 
 //6자리 난수 생성 함수
 function generateCode() {
@@ -150,3 +183,46 @@ exports.verifyEmailCode = async (req, res) => {
     });
 };
 
+//RefreshToken으로 AccessToken 재발급
+exports.refresh = async(req, res, next) => {
+    const refreshToken = req.cookies.refreshToken;
+    if(!refreshToken)
+        return res.sendStatus(401);
+
+    const user = await User.findOne({refreshToken});
+    if(!user)
+        return res.sendStatus(403);
+
+    jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET_KEY,
+        async(err, decoded) => {
+            if(err)
+                return res.sendStatus(403);
+
+            //재발급
+            const newAccessToken = jwt.sign(
+                {userId : user._id},
+                process.env.JWT_ACCESS_SECRET_KEY,
+                {expiresIn: '1h'}
+            );
+
+            const newRefreshToken = jwt.sign(
+                {userId : user._id},
+                process.env.JWT_REFRESH_SECRET_KEY,
+                {expiresIn: '7d'}
+            );
+
+            user.refreshToken = newRefreshToekn;
+            await user.save();
+
+            res.cookie('refreshToken', newRefreshToken, {
+                httpOnly: ture,
+                secure: false,
+                sameSite: 'strict'
+            });
+
+            res.send({accessToken: newAccessToken});
+        }
+    )
+}

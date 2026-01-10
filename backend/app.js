@@ -9,6 +9,7 @@ const userRoutes = require('./routes/user');
 const recordRoutes = require('./routes/record');
 
 app.use(express.json());
+
 app.use('/main', userRoutes);
 app.use('/predict', recordRoutes);
 

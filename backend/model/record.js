@@ -33,4 +33,4 @@ const recordSchema = new Schema({
     }
 }, {timestamps: true})
 
-module.exports = mongoose.model('Picture', recordSchema);
+module.exports = mongoose.model('Record', recordSchema);
