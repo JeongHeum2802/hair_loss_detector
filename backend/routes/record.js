@@ -23,4 +23,16 @@ router.post(
     recordController.saveCrownPicture
 );
 
+//유저 레코드 조회 라우트
+router.get(
+    '/viewRecords',
+    recordController.sendRecord
+);
+
+//유저 레코드 삭제
+router.delete(
+    '/deleteRecord',
+    recordController.deleteRecord
+);
+
 module.exports = router;

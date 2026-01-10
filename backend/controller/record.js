@@ -85,3 +85,33 @@ exports.saveCrownPicture = async (req, res, next) => {
     res.status(500).json({message: "업로드 실패"});
 }
 }
+
+//프론트에서 userId를 받아서 해당 user의 모든 레코드 조회
+exports.sendRecord = async (req,res,next) => {
+    try{
+    const {userId} = req.body;
+
+    const records = await Record.find({userId});
+
+    res.status(200).send(records);
+
+    } catch(err) {
+        console.log(err);
+        res.status(500).json({messsage: "레코드 조회 실패!"});
+    }
+}
+
+//프론트에서 레코드 ID를 받아 삭제
+exports.deleteRecord = async (req, res, next) => {
+    try{
+        const {recordId} = req.body;
+
+        await Record.findByIdAndDelete({_id : recordId});
+
+        console.log("삭제 성공!");
+        res.status(200).json({message: "삭제 성공"});
+    } catch(err){
+        console.log(err);
+        res.status(500).json({message: "삭제 실패!"});
+    }
+}
