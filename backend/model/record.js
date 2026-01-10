@@ -30,7 +30,12 @@ const recordSchema = new Schema({
 
     probability: {
         type: Number
+    },
+
+    comment: {
+        type: String
     }
+    
 }, {timestamps: true})
 
 module.exports = mongoose.model('Record', recordSchema);
