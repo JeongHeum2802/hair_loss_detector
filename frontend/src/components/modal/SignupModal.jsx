@@ -20,6 +20,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
 
   // validation errors
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
 
 
   // input handlers
@@ -36,6 +37,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
         [name]: null,
       }));
     }
+    if (apiError) setApiError('');
   };
 
   // 회원가입 요청
@@ -84,15 +86,14 @@ const SignupModal = ({ onLoginClick, onClose }) => {
       const data = await response.json();
 
       if (response.ok) {
-        alert("회원가입이 완료되었습니다.");
         onClose();
         // 필요시 로그인 모달로 전환 로직 추가
       } else {
-        alert(data.message || "회원가입에 실패했습니다.");
+        setApiError(data.message || "회원가입에 실패했습니다.");
       }
     } catch (error) {
       console.error("Signup Error:", error);
-      alert("서버 연결 중 오류가 발생했습니다.");
+      setApiError("서버 연결 중 오류가 발생했습니다.");
     }
   };
 
@@ -114,12 +115,12 @@ const SignupModal = ({ onLoginClick, onClose }) => {
         alert(resData.message);
       } else {
         setIsEmailCertificating(false);
-        alert(resData.message || "이메일 인증에 실패했습니다.");
+        setApiError(resData.message || "이메일 인증에 실패했습니다.");
       }
     } catch (error) {
       console.error("Certification Error:", error);
       setIsEmailCertificating(false);
-      alert("서버 연결 중 오류가 발생했습니다.");
+      setApiError("서버 연결 중 오류가 발생했습니다.");
     }
   }
 
@@ -143,11 +144,11 @@ const SignupModal = ({ onLoginClick, onClose }) => {
         setIsEmailCertificating(false);
         setIsEmailCertified(true);
       } else {
-        alert(resData.message || "이메일 인증에 실패했습니다.");
+        setApiError(resData.message || "이메일 인증에 실패했습니다.");
       }
     } catch (error) {
       console.error("Certification Error:", error);
-      alert("서버 연결 중 오류가 발생했습니다.");
+      setApiError("서버 연결 중 오류가 발생했습니다.");
     }
   }
 
@@ -292,6 +293,12 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.terms}</p>
           )}
         </div>
+        {apiError && (
+          <div className="text-red-500 text-sm font-medium text-center bg-red-50 p-2 rounded-lg mt-4">
+            {apiError}
+          </div>
+        )}
+
         {/* 회원가입 버튼 */}
         <div className="pt-2">
           <button
