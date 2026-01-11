@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
 import AuthContext from '../store/auth-context';
+import { API_BASE_URL } from '../config/api';
 
 const RecordCard = ({ record }) => {
   const authcontext = useContext(AuthContext);
@@ -10,7 +11,7 @@ const RecordCard = ({ record }) => {
     if (isDeleting) return;
     setIsDeleting(true);
 
-    const response = await fetch('http://localhost:3000/predict/deleteRecord', {
+    const response = await fetch(`${API_BASE_URL}/predict/deleteRecord`, {
       method: "DELETE",
       headers: {
         'Content-Type': 'application/json',
@@ -41,62 +42,61 @@ const RecordCard = ({ record }) => {
   const crownUrl = crownPic?.imageUrl || "https://via.placeholder.com/150";
 
   return (
-    <div style={{
-      position: 'relative',
-      backgroundColor: 'white',
-      borderRadius: '16px',
-      padding: '24px',
-      marginBottom: '16px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-      border: '1px solid #f1f5f9'
-    }}>
-      {/* 삭제 버튼 */}
-      <button
-        onClick={handleDelete}
-        disabled={isDeleting}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          border: 'none',
-          backgroundColor: 'transparent',
-          color: isDeleting ? '#3b82f6' : '#cbd5e1',
-          cursor: isDeleting ? 'not-allowed' : 'pointer',
-          transition: 'color 0.2s',
-          zIndex: 10
-        }}
-        onMouseEnter={(e) => !isDeleting && (e.currentTarget.style.color = '#ef4444')}
-        onMouseLeave={(e) => !isDeleting && (e.currentTarget.style.color = '#cbd5e1')}
-      >
-        {isDeleting ? <Loader2 size={20} className="animate-spin" /> : <Trash2 size={20} />}
-      </button>
-
-
-      {/* 날짜 표시 */}
-      <div style={{ color: '#94a3b8', fontSize: '12px', fontWeight: '500', marginBottom: '8px' }}>
-        {new Date(createdAt).toLocaleDateString()} {new Date(createdAt).toLocaleTimeString()}
-      </div>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h4 style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', marginBottom: '4px' }}>
-            진단 결과: <span style={{ color: '#3b82f6' }}>{displayProbability}%</span>
-          </h4>
-          <p style={{ color: '#64748b', fontSize: '14px', lineHeight: '1.5' }}>
-            {comment}
-          </p>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow relative mb-4">
+      <div className="flex flex-col md:flex-row p-4 md:p-6 gap-4 md:gap-6">
+        {/* 이미지 영역 */}
+        <div className="flex gap-2 md:gap-3 shrink-0">
+          <div className="relative w-full md:w-24 h-32 md:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 flex-1 md:flex-none">
+            <img
+              src={foreheadPic?.imageUrl || "https://via.placeholder.com/150"}
+              alt="이마 사진"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-0 text-[10px] bg-black/50 text-white w-full text-center py-0.5 backdrop-blur-sm">
+              이마
+            </div>
+          </div>
+          <div className="relative w-full md:w-24 h-32 md:h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 flex-1 md:flex-none">
+            <img
+              src={crownPic?.imageUrl || "https://via.placeholder.com/150"}
+              alt="정수리 사진"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-0 text-[10px] bg-black/50 text-white w-full text-center py-0.5 backdrop-blur-sm">
+              정수리
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* 사진 영역 */}
-      <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-        <div style={{ position: 'relative' }}>
-          <img src={foreheadUrl} alt="이마" style={{ width: '90px', height: '90px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #f1f5f9' }} />
-          <span style={{ position: 'absolute', bottom: '4px', left: '4px', fontSize: '10px', backgroundColor: 'rgba(0,0,0,0.4)', color: 'white', padding: '2px 6px', borderRadius: '4px' }}>이마</span>
-        </div>
-        <div style={{ position: 'relative' }}>
-          <img src={crownUrl} alt="정수리" style={{ width: '90px', height: '90px', borderRadius: '12px', objectFit: 'cover', border: '1px solid #f1f5f9' }} />
-          <span style={{ position: 'absolute', bottom: '4px', left: '4px', fontSize: '10px', backgroundColor: 'rgba(0,0,0,0.4)', color: 'white', padding: '2px 6px', borderRadius: '4px' }}>정수리</span>
+        {/* 텍스트 영역 */}
+        <div className="flex-1 flex flex-col justify-between py-1">
+          <div>
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="bg-blue-100 text-blue-600 text-xs md:text-sm px-2 py-0.5 rounded-full">
+                    탈모 확률
+                  </span>
+                  {probability ? (probability * 100).toFixed(0) : 0}%
+                </h3>
+                <span className="text-xs text-slate-400 mt-1 block">
+                  {new Date(createdAt).toLocaleDateString()} {new Date(createdAt).toLocaleTimeString()}
+                </span>
+              </div>
+
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="absolute top-4 right-4 md:static text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"
+                title="삭제"
+              >
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> : <Trash2 className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 md:line-clamp-none">
+              {comment}
+            </p>
+          </div>
         </div>
       </div>
     </div>

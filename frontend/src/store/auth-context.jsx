@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 // context 구조 정의
 const AuthContext = React.createContext({
@@ -35,7 +36,7 @@ export const AuthContextProvider = (props) => {
         setRecords([]);
         return;
       }
-      const response = await fetch("http://localhost:3000/predict/viewRecords/", {
+      const response = await fetch(`${API_BASE_URL}/predict/viewRecords/`, {
         method: "GET",
         headers: {
           'Content-Type': 'application/json',

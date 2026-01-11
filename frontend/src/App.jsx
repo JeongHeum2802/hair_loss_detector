@@ -8,6 +8,7 @@ import RecordList from './components/RecordList';
 
 import { AuthContextProvider } from './store/auth-context';
 import AuthContext from './store/auth-context';
+import { AI_API_BASE_URL } from './config/api';
 
 const App = () => {
   const authcontext = useContext(AuthContext);
@@ -72,12 +73,22 @@ const App = () => {
       crownFormData.append("file", crownFile);
 
       // 2. ai api 호출
+      // const [foreheadRes, crownRes] = await Promise.all([
+      //   fetch(`${AI_API_BASE_URL}/predict/forehead`, {
+      //     method: "POST",
+      //     body: foreheadFormData,
+      //   }),
+      //   fetch(`${AI_API_BASE_URL}/predict/crown`, {
+      //     method: "POST",
+      //     body: crownFormData,
+      //   }),
+      // ]);
       const [foreheadRes, crownRes] = await Promise.all([
-        fetch("http://localhost:8000/predict/forehead", {
+        fetch(`${AI_API_BASE_URL}/predict/forehead`, {
           method: "POST",
           body: foreheadFormData,
         }),
-        fetch("http://localhost:8000/predict/crown", {
+        fetch(`${AI_API_BASE_URL}/predict/crown`, {
           method: "POST",
           body: crownFormData,
         }),
@@ -154,11 +165,11 @@ const App = () => {
       <Header onReset={resetAll} handleLoginModalOpen={handleLoginClick} clearShowResult={clearShowResult} />
 
 
-      <main className="max-w-2xl mx-auto px-6 mt-8">
+      <main className="max-w-2xl mx-auto px-4 md:px-6 mt-6 md:mt-8">
         {/* 설명 섹션 */}
-        <section className="mb-10 text-center">
-          <h2 className="text-2xl font-extrabold text-slate-800 mb-2">두피 상태 정밀 분석</h2>
-          <p className="text-slate-500">정수리와 이마 사진을 올려주시면 AI가 상태를 분석합니다.</p>
+        <section className="mb-8 md:mb-10 text-center">
+          <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 mb-2">두피 상태 정밀 분석</h2>
+          <p className="text-sm md:text-base text-slate-500">정수리와 이마 사진을 올려주시면 AI가 상태를 분석합니다.</p>
         </section>
 
         {/* 업로드 섹션 */}

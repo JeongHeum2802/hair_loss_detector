@@ -4,6 +4,7 @@ import Input from './Input';
 import { X, LogIn } from 'lucide-react';
 
 import AuthContext from '../../store/auth-context';
+import { API_BASE_URL } from '../../config/api';
 
 
 const LoginModal = ({ onSignupClick, onClose }) => {
@@ -24,7 +25,7 @@ const LoginModal = ({ onSignupClick, onClose }) => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/main/logIn', {
+      const response = await fetch(`${API_BASE_URL}/main/logIn`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Input from './Input';
 import { X, UserPlus, Loader2 } from 'lucide-react';
+import { API_BASE_URL } from '../../config/api';
 
 const SignupModal = ({ onLoginClick, onClose }) => {
   // form data
@@ -100,7 +101,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/main/signUp', {
+      const response = await fetch(`${API_BASE_URL}/main/signUp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
     setApiError(''); // clear previous errors
 
     try {
-      const response = await fetch('http://localhost:3000/main/sendEmailCode', {
+      const response = await fetch(`${API_BASE_URL}/main/sendEmailCode`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +165,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
     setEmailVerifyError('');
 
     try {
-      const response = await fetch('http://localhost:3000/main/verify_email', {
+      const response = await fetch(`${API_BASE_URL}/main/verify_email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
