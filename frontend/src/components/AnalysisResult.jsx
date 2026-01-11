@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import AuthContext from '../store/auth-context';
 
-const AnalysisResult = ({ resultData, foreheadImage, crownImage }) => {
+const AnalysisResult = ({ resultData, foreheadImage, crownImage, clearShowResult }) => {
   if (!resultData) return null;
 
   const [isSavingRecord, setIsSavingRecord] = useState(false);
@@ -31,6 +31,7 @@ const AnalysisResult = ({ resultData, foreheadImage, crownImage }) => {
         authcontext.setRecords((prev) => {
           return [...prev, data.record];
         });
+        clearShowResult();
       }
       else {
         console.log("saveRecord error");

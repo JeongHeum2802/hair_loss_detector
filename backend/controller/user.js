@@ -215,11 +215,11 @@ exports.refresh = async (req, res, next) => {
         { expiresIn: '7d' }
       );
 
-      user.refreshToken = newRefreshToekn;
+      user.refreshToken = newRefreshToken;
       await user.save();
 
       res.cookie('refreshToken', newRefreshToken, {
-        httpOnly: ture,
+        httpOnly: true,
         secure: false,
         sameSite: 'strict'
       });

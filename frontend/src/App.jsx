@@ -24,6 +24,15 @@ const App = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
 
+  // showResult 초기화 핸들러
+  const clearShowResult = () => {
+    setShowResult(false);
+    setCrownImage(null);
+    setForeheadImage(null);
+    setCrownFile(null);
+    setForeheadFile(null);
+    setResultData(null);
+  }
 
   // 이미지 변경 핸들러
   const handleImageChange = (e, type) => {
@@ -142,7 +151,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
       {/* 헤더 컴포넌트 */}
-      <Header onReset={resetAll} handleLoginModalOpen={handleLoginClick} />
+      <Header onReset={resetAll} handleLoginModalOpen={handleLoginClick} clearShowResult={clearShowResult} />
 
 
       <main className="max-w-2xl mx-auto px-6 mt-8">
@@ -193,11 +202,16 @@ const App = () => {
         </button>
 
         {/* 결과 섹션 (조건부 렌더링) */}
-        {showResult && <AnalysisResult resultData={resultData} foreheadImage={foreheadFile} crownImage={crownFile} />}
+        {showResult && <AnalysisResult
+          resultData={resultData}
+          foreheadImage={foreheadFile}
+          crownImage={crownFile}
+          clearShowResult={clearShowResult}
+        />}
 
         {/*히스토리 섹션*/}
         <hr className="my-12 border-slate-200" />
-        {authcontext.isLoggedIn ? <RecordList /> : <p>로그인을 해서 정보를 기록해보세요!</p>}
+        {authcontext.isLoggedIn ? <RecordList /> : <p className="text-center text-slate-500 italic font-medium">로그인을 해서 정보를 기록해보세요!</p>}
       </main>
 
       <AuthModal

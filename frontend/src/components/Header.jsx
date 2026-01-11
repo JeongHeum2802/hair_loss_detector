@@ -2,8 +2,13 @@ import React, { useContext } from 'react';
 import { Layout, RefreshCcw } from 'lucide-react';
 import AuthContext from '../store/auth-context';
 
-const Header = ({ onReset, handleLoginModalOpen }) => {
+const Header = ({ onReset, handleLoginModalOpen, clearShowResult }) => {
   const authcontext = useContext(AuthContext);
+
+  const handlelogout = () => {
+    clearShowResult();
+    authcontext.logout();
+  }
   return (
     <header className="bg-white border-b border-blue-100 sticky top-0 z-10">
       <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -21,7 +26,7 @@ const Header = ({ onReset, handleLoginModalOpen }) => {
           </button>
           {!authcontext.isLoggedIn ? <button onClick={handleLoginModalOpen} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm">
             로그인
-          </button> : <button onClick={authcontext.logout} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm">
+          </button> : <button onClick={handlelogout} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm">
             로그아웃
           </button>}
         </div>
