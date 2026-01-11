@@ -82,6 +82,8 @@ exports.logIn = async (req, res, next) => {
   });
 
   res.send({
+    state: 'success',
+    message: '로그인 성공!',
     accessToken
   });
 }

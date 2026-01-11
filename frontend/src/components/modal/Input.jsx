@@ -16,8 +16,8 @@ const Input = ({ label, id, type, placeholder, value, onChange, children, ...pro
           value={value}
           onChange={onChange}
           className={`w-full px-4 py-3 rounded-xl bg-slate-50 border text-slate-800 placeholder:text-slate-400 outline-none transition-all font-medium ${props.error
-              ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
-              : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100 focus:ring-2'
+            ? 'border-red-500 focus:border-red-500 focus:ring-red-100'
+            : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100 focus:ring-2'
             }`}
           {...props}
         />
