@@ -9,7 +9,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
     password: '',
     name: '',
     age: '',
-    gender: '남성',
+    gender: 0,
     terms: false,
   });
 
@@ -69,6 +69,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
     }
 
     if (Object.keys(newErrors).length > 0) {
+      console.log(newErrors);
       setErrors(newErrors);
       return;
     }
@@ -267,8 +268,8 @@ const SignupModal = ({ onLoginClick, onClose }) => {
                 value={formData.gender}
                 onChange={(e) => handleInputChange(e)}
               >
-                <option value="남성">남성</option>
-                <option value="여성">여성</option>
+                <option value="1">남성</option>
+                <option value="0">여성</option>
               </select>
             </div>
           </div>

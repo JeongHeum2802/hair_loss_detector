@@ -5,6 +5,7 @@ import { X, LogIn } from 'lucide-react';
 
 import AuthContext from '../../store/auth-context';
 
+
 const LoginModal = ({ onSignupClick, onClose }) => {
   const authContext = useContext(AuthContext);
   const [email, setEmail] = useState('');

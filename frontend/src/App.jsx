@@ -62,7 +62,7 @@ const App = () => {
       const crownFormData = new FormData();
       crownFormData.append("file", crownFile);
 
-      // 2. 백엔드 API 호출 (병렬 처리)
+      // 2. ai api 호출
       const [foreheadRes, crownRes] = await Promise.all([
         fetch("http://localhost:8000/predict/forehead", {
           method: "POST",
@@ -198,7 +198,7 @@ const App = () => {
 
           {/*히스토리 섹션*/}
           <hr className="my-12 border-slate-200" />
-          {authcontext.isLoggedIn && <RecordList  />}
+          {authcontext.isLoggedIn && <RecordList />}
         </main>
 
         <AuthModal

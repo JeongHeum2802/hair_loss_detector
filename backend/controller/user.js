@@ -33,6 +33,10 @@ exports.signIn = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     console.log("회원가입 실패!");
+    res.send({
+      state: "fail",
+      message: "회원가입 실패!"
+    });
   }
 }
 
