@@ -26,73 +26,53 @@ const deleteFromCloudinary = async (publicId) => {
     return await cloudinary.uploader.destroy(publicId);
 };
 
-//이마 사진 cloudinary에 저장 후 url DB에 저장
-exports.saveForeheadPicture = async (req, res, next) => {
+//프론트에서 보낸 레코드 저장
+exports.saveRecord = async (req, res, next) => {
     try{
-    const file = req.file;
-    const userId = req.user.userId;
+        const userId = req.user.userId;
+        const foreheadPic = req.files?.foreheadPic?.[0];
+        const crownPic = req.files?.crownPic?.[0];
 
-    if(!file){
-        return res.status(400).json({message: "파일 없음"});
+        if(!foreheadPic || !crownPic)
+            return res.status(400).json({message: "사진 두 장 필요!"});
+
+        const {probability, comment} = req.body;
+
+        // Cloudinary 업로드
+        const foreheadResult = await uploadToCloudinary(
+            foreheadFile.buffer,
+            'hair/forehead'
+        );
+
+        const crownResult = await uploadToCloudinary(
+            crownFile.buffer,
+            'hair/crown'
+        );
+
+        // DB 저장
+        const record = await Record.create({
+            userId,
+            foreheadPic: {
+                imageUrl: foreheadResult.secure_url,
+                publicId: foreheadResult.public_id
+            },
+            crownPic: {
+                imageUrl: crownResult.secure_url,
+                publicId: crownResult.public_id
+            },
+            probability: probability,
+            comment: comment
+        });
+
+        res.status(201).json({
+            message: '업로드 성공',
+            record
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: '업로드 실패' });
     }
-
-    const result = await uploadToCloudinary(file.buffer, 'hair/forehead');
-    const secure_url = result.secure_url;
-    const public_id = result.public_id;
-
-    const record = await Record.create({
-        userId,
-        foreheadPic : {imageUrl : secure_url, publicId : public_id}
-    });
-
-    console.log(record);
-    console.log(secure_url);
-    console.log(public_id);
-
-    res.json({
-        imageUrl: secure_url,
-        publicId: public_id,
-        record: record
-    });
-} catch(err) {
-    console.log(err);
-    res.status(500).json({message: "업로드 실패"});
-}
-}
-
-//정수리 사진 cloudinary에 저장 후 DB에 저장
-exports.saveCrownPicture = async (req, res, next) => {
-    try{
-    const file = req.file;
-    const {recordId} = req.body;
-
-    if(!file){
-        return res.status(400).json({message: "파일 없음"});
-    }
-
-    const result = await uploadToCloudinary(file.buffer, 'hair/crown');
-    const secure_url = result.secure_url;
-    const public_id = result.public_id;
-
-    const record = await Record.findByIdAndUpdate(
-        recordId,
-        {crownPic: {imageUrl: secure_url, publicId : public_id} }, 
-        { new: true}
-    );
-
-    console.log(record);
-    console.log(secure_url);
-    console.log(public_id);
-
-    res.json({
-        imageUrl: secure_url,
-        publicId: public_id,
-        record: record
-    });
-} catch(err) {
-    console.log(err);
-    res.status(500).json({message: "업로드 실패"});
-}
 }
 
 //프론트에서 userId를 받아서 해당 user의 모든 레코드 조회
