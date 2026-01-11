@@ -17,8 +17,8 @@ app.use('/predict', recordRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("몽고디비 연결 성공!");
-  app.listen(3000);
-  console.log("서버 연결 성공!");
+  app.listen(3000, '0.0.0.0');
+  console.log("서버 연결 성공! (0.0.0.0:3000)");
 }).catch(err => {
   console.log(err);
 })

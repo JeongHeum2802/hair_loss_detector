@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import Header from './components/Header';
 import ImageUploadCard from './components/ImageUploadCard';
@@ -35,6 +35,38 @@ const App = () => {
     setResultData(null);
   }
 
+  // Data URL을 File 객체로 변환하는 유틸리티 함수
+  const dataURLtoFile = (dataurl, filename) => {
+    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  // 컴포넌트 마운트 시 로컬 스토리지에서 이미지 복구
+  useEffect(() => {
+    const savedCrownKey = 'saved_crown_image';
+    const savedForeheadKey = 'saved_forehead_image';
+
+    const savedCrown = localStorage.getItem(savedCrownKey);
+    const savedForehead = localStorage.getItem(savedForeheadKey);
+
+    if (savedCrown) {
+      setCrownImage(savedCrown);
+      // Data URL을 File 객체로 변환하여 상태 복구
+      const file = dataURLtoFile(savedCrown, 'restored_crown.jpg');
+      setCrownFile(file);
+    }
+
+    if (savedForehead) {
+      setForeheadImage(savedForehead);
+      const file = dataURLtoFile(savedForehead, 'restored_forehead.jpg');
+      setForeheadFile(file);
+    }
+  }, []);
+
   // 이미지 변경 핸들러
   const handleImageChange = (e, type) => {
     const file = e.target.files[0];
@@ -44,10 +76,12 @@ const App = () => {
         if (type === 'crown') {
           setCrownImage(reader.result);
           setCrownFile(file);
+          localStorage.setItem('saved_crown_image', reader.result); // 저장
         }
         if (type === 'forehead') {
           setForeheadImage(reader.result);
           setForeheadFile(file);
+          localStorage.setItem('saved_forehead_image', reader.result); // 저장
         }
       };
       reader.readAsDataURL(file);
@@ -112,6 +146,10 @@ const App = () => {
 
       setShowResult(true);
 
+      // 성공 시 임시 저장된 이미지 삭제
+      localStorage.removeItem('saved_crown_image');
+      localStorage.removeItem('saved_forehead_image');
+
       // 결과 섹션으로 부드럽게 스크롤
       setTimeout(() => {
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -133,6 +171,9 @@ const App = () => {
     setForeheadFile(null);
     setShowResult(false);
     setResultData(null);
+    // 초기화 시 로컬 스토리지 삭제
+    localStorage.removeItem('saved_crown_image');
+    localStorage.removeItem('saved_forehead_image');
   };
 
   // authModal 핸들러
