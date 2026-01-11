@@ -10,49 +10,9 @@ import { useRecords } from './hooks/useRecords';
 import { AuthContextProvider } from './store/auth-context';
 
 const App = () => {
-    /*const [historyRecords, setHistoryRecords] = useState([ // setHistoryRecords: 수정 권한 주기
-    {
-      _id: '1',
-      probability: 75,
-      coment: "첫 번째 진단 결과입니다.",
-      foreheadUrl: "https://via.placeholder.com/150",
-      crownUrl: "https://via.placeholder.com/150",
-      createdAt: new Date().toISOString()
-    },
-    {
-      _id: '2',
-      probability: 45,
-      coment: "상태가 조금 나아졌어요.",
-      foreheadUrl: "https://via.placeholder.com/150",
-      crownUrl: "https://via.placeholder.com/150",
-      createdAt: new Date().toISOString()
-    },
-    {
-      _id: '3',
-      probability: 45,
-      coment: "상태가 조금 나아졌어요.",
-      foreheadUrl: "https://via.placeholder.com/150",
-      crownUrl: "https://via.placeholder.com/150",
-      createdAt: new Date().toISOString()
-    },
-    {
-      _id: '4',
-      probability: 45,
-      coment: "상태가 조금 나아졌어요.",
-      foreheadUrl: "https://via.placeholder.com/150",
-      crownUrl: "https://via.placeholder.com/150",
-      createdAt: new Date().toISOString()
-    },
-    {
-      _id: '5',
-      probability: 45,
-      coment: "상태가 조금 나아졌어요.",
-      foreheadUrl: "https://via.placeholder.com/150",
-      crownUrl: "https://via.placeholder.com/150",
-      createdAt: new Date().toISOString()
-    }
-  ]); 삭제 예정 */
+  // records state
   const { historyRecords, removeRecord } = useRecords();
+
   // ai state
   const [crownImage, setCrownImage] = useState(null); // 정수리 사진 (미리보기용)
   const [foreheadImage, setForeheadImage] = useState(null); // 이마 사진 (미리보기용)
@@ -65,7 +25,6 @@ const App = () => {
   // authModal
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
-
 
 
   // 이미지 변경 핸들러
@@ -220,42 +179,42 @@ const App = () => {
             disabled={isAnalyzing || !crownImage || !foreheadImage}
             className={`w-full py-4 rounded-2xl font-bold text-lg shadow-lg shadow-blue-100 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
             ${isAnalyzing || !crownImage || !foreheadImage
-              ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-              : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-        >
-          {isAnalyzing ? (
-            <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              분석 중...
-            </>
-          ) : (
-            <>
-              <CheckCircle2 className="w-5 h-5" />
-              상태 판별하기
-            </>
-          )}
-        </button>
+                ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
+                : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+          >
+            {isAnalyzing ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                분석 중...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-5 h-5" />
+                상태 판별하기
+              </>
+            )}
+          </button>
 
-        {/* 결과 섹션 (조건부 렌더링) */}
-        {showResult && <AnalysisResult resultData={resultData} />}
+          {/* 결과 섹션 (조건부 렌더링) */}
+          {showResult && <AnalysisResult resultData={resultData} />}
 
-        {/*히스토리 섹션*/}
-        <hr className="my-12 border-slate-200" />
-        {/*<RecordList historyRecords={historyRecords} /> 삭제 예정*/}
-        <RecordList 
-          historyRecords={historyRecords} 
-          onDelete={removeRecord} 
+          {/*히스토리 섹션*/}
+          <hr className="my-12 border-slate-200" />
+          {/*<RecordList historyRecords={historyRecords} /> 삭제 예정*/}
+          <RecordList
+            historyRecords={historyRecords}
+            onDelete={removeRecord}
+          />
+        </main>
+
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={handleAuthModalClose}
+          initialMode={authModalMode}
         />
-      </main>
+      </div>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={handleAuthModalClose}
-        initialMode={authModalMode}
-      />
-    </div>
-
-
+    </AuthContextProvider>
   );
 };
 
