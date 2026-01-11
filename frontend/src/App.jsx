@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import Header from './components/Header';
 import ImageUploadCard from './components/ImageUploadCard';
 import AnalysisResult from './components/AnalysisResult';
 import AuthModal from './components/modal/AuthModal';
 import RecordList from './components/RecordList';
-import { useRecords } from './hooks/useRecords';
 
 import { AuthContextProvider } from './store/auth-context';
+import AuthContext from './store/auth-context';
 
 const App = () => {
-  // records state
-  const { historyRecords, removeRecord } = useRecords();
-
+  const authcontext = useContext(AuthContext);
   // ai state
   const [crownImage, setCrownImage] = useState(null); // 정수리 사진 (미리보기용)
   const [foreheadImage, setForeheadImage] = useState(null); // 이마 사진 (미리보기용)
@@ -200,11 +198,7 @@ const App = () => {
 
           {/*히스토리 섹션*/}
           <hr className="my-12 border-slate-200" />
-          {/*<RecordList historyRecords={historyRecords} /> 삭제 예정*/}
-          <RecordList
-            historyRecords={historyRecords}
-            onDelete={removeRecord}
-          />
+          {authcontext.isLoggedIn && <RecordList  />}
         </main>
 
         <AuthModal
