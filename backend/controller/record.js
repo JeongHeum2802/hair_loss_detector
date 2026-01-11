@@ -89,7 +89,7 @@ exports.saveCrownPicture = async (req, res, next) => {
 //프론트에서 userId를 받아서 해당 user의 모든 레코드 조회
 exports.sendRecord = async (req,res,next) => {
     try{
-    const {userId} = req.body;
+    const userId = req.user.userId;
 
     const records = await Record.find({userId});
 

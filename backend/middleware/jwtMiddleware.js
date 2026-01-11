@@ -4,15 +4,19 @@ const jwt = require('jsonwebtoken');
 
 exports.verifyAccess = (req, res, next) => {
     const auth = req.headers.authorization;
-    if(!auth)
+    if (!auth)
         return res.sendStatus(401);
 
-    const token = auth.split(' ')[1];
+    try {
+        const token = auth.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET_KEY);
 
-    jwt.verify(token, process.env.JWT_ACCESS_SECRET_KEY, (err,decoded) => {
-        if(err)
-            return res.sendStatus(403);
-        req.userId = decoded.userId;
+        req.user = {
+            userId: decoded.userId
+        };
+
         next();
-    });
+    } catch (err) {
+        return res.status(401).json({ message: "유효하지 않은 토큰!" });
+    }
 }

@@ -26,12 +26,14 @@ router.post(
 //유저 레코드 조회 라우트
 router.get(
     '/viewRecords',
+    verifyAccess,
     recordController.sendRecord
 );
 
 //유저 레코드 삭제
 router.delete(
     '/deleteRecord',
+    verifyAccess,
     recordController.deleteRecord
 );
 
