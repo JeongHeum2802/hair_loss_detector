@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     email : {
         type : String,
-        required : true
+        required : true,
+        unique: true
     } ,
 
     name : {
@@ -26,6 +27,10 @@ const userSchema = new Schema({
     password : {
         type: String,
         required : true
+    },
+    
+    refreshToken: {
+        type: String
     }
 })
 

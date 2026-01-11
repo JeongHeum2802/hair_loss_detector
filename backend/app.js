@@ -6,9 +6,12 @@ const mongoose  = require('mongoose');
 const http = require('http');
 
 const userRoutes = require('./routes/user');
+const recordRoutes = require('./routes/record');
 
 app.use(express.json());
+
 app.use('/main', userRoutes);
+app.use('/predict', recordRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log("몽고디비 연결 성공!");
