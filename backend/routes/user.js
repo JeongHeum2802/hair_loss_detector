@@ -5,7 +5,7 @@ const router = express.Router();
 const userController = require('../controller/user');
 
 //회원가입
-router.post('/signIn', userController.signIn);
+router.post('/signUp', userController.signUp);
 
 //로그인
 router.post('/logIn', userController.logIn);
