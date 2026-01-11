@@ -1,8 +1,33 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { AlertCircle } from 'lucide-react';
+import AuthContext from '../store/auth-context';
 
-const AnalysisResult = ({ resultData }) => {
+const AnalysisResult = ({ resultData, foreheadImage, crownImage }) => {
   if (!resultData) return null;
+
+  const authcontext = useContext(AuthContext);
+
+  const handleSaveRecord = async () => {
+    const response = await fetch('http://localhost:3000/saveRecord', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authcontext.token}`
+      },
+      body: JSON.stringify({
+        foreheadImage,
+        crownImage,
+        comment: resultData.comment,
+        probability: resultData.probility
+      })
+    })
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data.record);
+    }
+  }
+
 
   return (
     <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -12,6 +37,14 @@ const AnalysisResult = ({ resultData }) => {
             <AlertCircle className="w-6 h-6 text-blue-500" />
           </div>
           <h3 className="text-xl font-bold text-slate-800">분석 결과 리포트</h3>
+
+          {authcontext.isLoggedIn &&
+            <button
+              onClick={handleSaveRecord}
+              className="ml-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm">
+              기록
+            </button>
+          }
         </div>
 
         {/* 확률 게이지 */}

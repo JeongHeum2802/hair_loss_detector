@@ -1,11 +1,51 @@
 
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import Input from './Input';
 import { X, LogIn } from 'lucide-react';
 
+import AuthContext from '../../store/auth-context';
+
+
 const LoginModal = ({ onSignupClick, onClose }) => {
+  const authContext = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email.trim() || !password.trim()) {
+      setError('이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/main/logIn', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const resData = await response.json();
+      if (resData.state === 'success') {
+        authContext.login(resData.accessToken);
+        onClose();
+      } else {
+        setError(resData.message || "로그인에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error(error);
+      setError("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <div
@@ -29,7 +69,7 @@ const LoginModal = ({ onSignupClick, onClose }) => {
       </div>
 
       {/* Form */}
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-4" onSubmit={handleLogin}>
         <Input
           label="이메일"
           id="email"
@@ -37,6 +77,7 @@ const LoginModal = ({ onSignupClick, onClose }) => {
           placeholder="example@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          disabled={isLoading}
         />
 
         <Input
@@ -46,14 +87,30 @@ const LoginModal = ({ onSignupClick, onClose }) => {
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
         />
+
+        {error && (
+          <div className="text-red-500 text-sm font-medium text-center bg-red-50 p-2 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-base shadow-lg shadow-blue-200 transition-all transform active:scale-[0.98]"
+            disabled={isLoading}
+            className={`w-full py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-base shadow-lg shadow-blue-200 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
+              ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            로그인하기
+            {isLoading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                로그인 중...
+              </>
+            ) : (
+              '로그인하기'
+            )}
           </button>
         </div>
       </form>
@@ -61,7 +118,7 @@ const LoginModal = ({ onSignupClick, onClose }) => {
       {/* Footer */}
       <div className="mt-6 text-center">
         <p className="text-sm text-slate-400">
-          계정이 없으신가요? <button onClick={onSignupClick} className="text-blue-500 font-bold hover:underline">회원가입</button>
+          계정이 없으신가요? <button onClick={onSignupClick} className="text-blue-500 font-bold hover:underline" disabled={isLoading}>회원가입</button>
         </p>
       </div>
     </div>
