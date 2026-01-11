@@ -7,6 +7,8 @@ import AuthModal from './components/modal/AuthModal';
 import RecordList from './components/RecordList';
 import { useRecords } from './hooks/useRecords';
 
+import { AuthContextProvider } from './store/auth-context';
+
 const App = () => {
     /*const [historyRecords, setHistoryRecords] = useState([ // setHistoryRecords: 수정 권한 주기
     {
@@ -171,7 +173,7 @@ const App = () => {
 
   // 삭제 수행 함수
   const deleteRecord = (id) => {
-    if (window.confirm("이 진단 기록을 삭제하시겠습니까?")){
+    if (window.confirm("이 진단 기록을 삭제하시겠습니까?")) {
       // filter를 사용해 클릭한 id만 제외한 새로운 목록을 만듭니다.
       const updatedRecords = historyRecords.filter(record => record._id !== id);
       setHistoryRecords(updatedRecords);
@@ -181,41 +183,42 @@ const App = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
-      {/* 헤더 컴포넌트 */}
-      <Header onReset={resetAll} handleLoginModalOpen={handleLoginClick} />
+    <AuthContextProvider>
+      <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+        {/* 헤더 컴포넌트 */}
+        <Header onReset={resetAll} handleLoginModalOpen={handleLoginClick} />
 
 
-      <main className="max-w-2xl mx-auto px-6 mt-8">
-        {/* 설명 섹션 */}
-        <section className="mb-10 text-center">
-          <h2 className="text-2xl font-extrabold text-slate-800 mb-2">두피 상태 정밀 분석</h2>
-          <p className="text-slate-500">정수리와 이마 사진을 올려주시면 AI가 상태를 분석합니다.</p>
-        </section>
+        <main className="max-w-2xl mx-auto px-6 mt-8">
+          {/* 설명 섹션 */}
+          <section className="mb-10 text-center">
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-2">두피 상태 정밀 분석</h2>
+            <p className="text-slate-500">정수리와 이마 사진을 올려주시면 AI가 상태를 분석합니다.</p>
+          </section>
 
-        {/* 업로드 섹션 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          <ImageUploadCard
-            label="정수리 사진"
-            image={crownImage}
-            onImageChange={(e) => handleImageChange(e, 'crown')}
-            onRemove={() => setCrownImage(null)}
-            inputId="crown-upload"
-          />
-          <ImageUploadCard
-            label="이마 사진"
-            image={foreheadImage}
-            onImageChange={(e) => handleImageChange(e, 'forehead')}
-            onRemove={() => setForeheadImage(null)}
-            inputId="forehead-upload"
-          />
-        </div>
+          {/* 업로드 섹션 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            <ImageUploadCard
+              label="정수리 사진"
+              image={crownImage}
+              onImageChange={(e) => handleImageChange(e, 'crown')}
+              onRemove={() => setCrownImage(null)}
+              inputId="crown-upload"
+            />
+            <ImageUploadCard
+              label="이마 사진"
+              image={foreheadImage}
+              onImageChange={(e) => handleImageChange(e, 'forehead')}
+              onRemove={() => setForeheadImage(null)}
+              inputId="forehead-upload"
+            />
+          </div>
 
-        {/* 분석 버튼 */}
-        <button
-          onClick={runAnalysis}
-          disabled={isAnalyzing || !crownImage || !foreheadImage}
-          className={`w-full py-4 rounded-2xl font-bold text-lg shadow-lg shadow-blue-100 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
+          {/* 분석 버튼 */}
+          <button
+            onClick={runAnalysis}
+            disabled={isAnalyzing || !crownImage || !foreheadImage}
+            className={`w-full py-4 rounded-2xl font-bold text-lg shadow-lg shadow-blue-100 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
             ${isAnalyzing || !crownImage || !foreheadImage
               ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
               : 'bg-blue-500 text-white hover:bg-blue-600'}`}

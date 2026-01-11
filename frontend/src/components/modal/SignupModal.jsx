@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Input from './Input';
-import { X, UserPlus, FileText } from 'lucide-react';
+import { X, UserPlus } from 'lucide-react';
 
 const SignupModal = ({ onLoginClick, onClose }) => {
   // form data
@@ -15,8 +15,11 @@ const SignupModal = ({ onLoginClick, onClose }) => {
 
   // email certificate
   const [isEmailCertified, setIsEmailCertified] = useState(false);
-  const [isEamilCertificating, setIsEamilCertificating] = useState(false);
+  const [isEmailCertificating, setIsEmailCertificating] = useState(false);
   const [certificationNumber, setCertificationNumber] = useState('');
+
+  // validation errors
+  const [errors, setErrors] = useState({});
 
 
   // input handlers
@@ -26,26 +29,51 @@ const SignupModal = ({ onLoginClick, onClose }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: null,
+      }));
+    }
   };
 
   // 회원가입 요청
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // 간단한 유효성 검사 (예시)
+    const newErrors = {};
+
     if (!isEmailCertified) {
-      alert("이메일 인증을 진행해 주세요.");
-      return;
+      newErrors.email = "이메일 인증을 완료해 주세요.";
+    }
+
+    // 유효성 검사
+    const passwordRegex = /^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    if (!formData.password || !passwordRegex.test(formData.password)) {
+      newErrors.password = "비밀번호는 8자 이상이어야 하며, 특수문자를 포함해야 합니다.";
+    }
+
+    if (!formData.name || formData.name.trim() === '') {
+      newErrors.name = "이름을 입력해 주세요.";
+    }
+
+    if (!formData.age || formData.age.toString().trim() === '') {
+      newErrors.age = "나이를 입력해 주세요.";
     }
 
     if (!formData.terms) {
-      alert("이용약관에 동의해 주세요.");
+      newErrors.terms = "이용약관에 동의해 주세요.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
     try {
       // 백엔드 회원가입 요청 (예제 URL)
-      const response = await fetch('http://localhost:5000/api/auth/signup', {
+      const response = await fetch('http://localhost:3000/main/signIn', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,19 +98,56 @@ const SignupModal = ({ onLoginClick, onClose }) => {
 
   // certification
   // 인증요청
-  const handleSentCertification = () => {
-    // 백엔드 이메일 발송 요청 (예정)
+  const handleSentCertification = async () => {
+    try {
+      setIsEmailCertificating(true);
+      const response = await fetch('http://localhost:3000/main/sendEmailCode', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
 
-    setIsEamilCertificating(true);
+      const resData = await response.json();
+      if (resData.state === 'success') {
+        alert(resData.message);
+      } else {
+        setIsEmailCertificating(false);
+        alert(resData.message || "이메일 인증에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("Certification Error:", error);
+      setIsEmailCertificating(false);
+      alert("서버 연결 중 오류가 발생했습니다.");
+    }
   }
 
   // 인증 확인
-  const handleCertification = () => {
-    // certification number와 함께 백엔드에 인증 요청 (예정)
-    const result = true; // 더미 데이터
-    if (result === true) {
-      setIsEamilCertificating(false);
-      setIsEmailCertified(true);
+  const handleCertification = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/main/verify_email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          code: certificationNumber,
+        }),
+      });
+
+      const resData = await response.json();
+      if (resData.state === 'success') {
+        alert(resData.message);
+        setIsEmailCertificating(false);
+        setIsEmailCertified(true);
+      } else {
+        alert(resData.message || "이메일 인증에 실패했습니다.");
+      }
+    } catch (error) {
+      console.error("Certification Error:", error);
+      alert("서버 연결 중 오류가 발생했습니다.");
     }
   }
 
@@ -122,10 +187,12 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             placeholder="example@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange(e)}
+            error={errors.email}
           >
             <button
               type="button"
-              className="text-blue-500 font-bold hover:underline text-sm w-12"
+              className={`text-blue-500 font-bold hover:underline text-sm w-12` + (isEmailCertificating ? ' opacity-50 cursor-not-allowed' : '')}
+              disabled={isEmailCertificating}
               onClick={handleSentCertification}
             >
               요청
@@ -133,7 +200,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
           </Input>
 
           {/* 인증번호 입력 칸 */}
-          {isEamilCertificating && (
+          {isEmailCertificating && (
             <Input
               id="certification"
               type="text"
@@ -163,6 +230,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             placeholder="••••••••"
             value={formData.password}
             onChange={(e) => handleInputChange(e)}
+            error={errors.password}
           />
 
           <Input
@@ -173,6 +241,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
             placeholder="홍길동"
             value={formData.name}
             onChange={(e) => handleInputChange(e)}
+            error={errors.name}
           />
 
           <div className="grid grid-cols-2 gap-4">
@@ -184,6 +253,7 @@ const SignupModal = ({ onLoginClick, onClose }) => {
               placeholder="25"
               value={formData.age}
               onChange={(e) => handleInputChange(e)}
+              error={errors.age}
             />
 
             <div>
@@ -196,8 +266,8 @@ const SignupModal = ({ onLoginClick, onClose }) => {
                 value={formData.gender}
                 onChange={(e) => handleInputChange(e)}
               >
-                <option value="male">남성</option>
-                <option value="female">여성</option>
+                <option value="남성">남성</option>
+                <option value="여성">여성</option>
               </select>
             </div>
           </div>
@@ -218,6 +288,9 @@ const SignupModal = ({ onLoginClick, onClose }) => {
               <span className="font-bold text-slate-800">이용약관</span> 및 <span className="font-bold text-slate-800">개인정보 처리방침</span>에 동의합니다.
             </label>
           </div>
+          {errors.terms && (
+            <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.terms}</p>
+          )}
         </div>
         {/* 회원가입 버튼 */}
         <div className="pt-2">
