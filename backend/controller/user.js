@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 
 
 //회원가입
-exports.signIn = async (req, res, next) => {
+exports.signUp = async (req, res, next) => {
     try {
         const { email, name, gender, age, password } = req.body;
 
