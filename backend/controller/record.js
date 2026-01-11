@@ -3,6 +3,7 @@ require('dotenv').config();
 const Record = require('../model/record');
 const mongoose = require('mongoose');
 const cloudinary = require('../config/cloudinary');
+const { listenerCount } = require('../model/emailAuth');
 
 //cloudinary에 사진 저장
 const uploadToCloudinary = (fileBuffer, folder) => {
@@ -17,11 +18,19 @@ const uploadToCloudinary = (fileBuffer, folder) => {
   });
 };
 
+//cloudinary에 저장된 사진 삭제
+const deleteFromCloudinary = async (publicId) => {
+    if(!publicId)
+        return;
+
+    return await cloudinary.uploader.destroy(publicId);
+};
+
 //이마 사진 cloudinary에 저장 후 url DB에 저장
 exports.saveForeheadPicture = async (req, res, next) => {
     try{
     const file = req.file;
-    const {userId} = req.body;
+    const userId = req.user.userId;
 
     if(!file){
         return res.status(400).json({message: "파일 없음"});
@@ -105,8 +114,22 @@ exports.sendRecord = async (req,res,next) => {
 exports.deleteRecord = async (req, res, next) => {
     try{
         const {recordId} = req.body;
+        const userId = req.user.userId;
 
-        await Record.findByIdAndDelete({_id : recordId});
+        const record = await Record.findOne({ _id: recordId, userId});
+
+        if(!record)
+            return res.status(404).json({message: "Record 없음"});
+
+    
+        await Promise.all([
+            record.foreheadPic?.publicId &&
+                deleteFromCloudinary(record.foreheadPic.publicId),
+            record.crownPic?.publicId &&
+                deleteFromCloudinary(record.crownPic.publicId),
+        ]);
+
+        await Record.findByIdAndDelete(recordId);
 
         console.log("삭제 성공!");
         res.status(200).json({message: "삭제 성공"});
