@@ -1,31 +1,45 @@
-import React, { useContext } from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, { useContext, useState } from 'react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import AuthContext from '../store/auth-context';
 
 const AnalysisResult = ({ resultData, foreheadImage, crownImage }) => {
   if (!resultData) return null;
 
+  const [isSavingRecord, setIsSavingRecord] = useState(false);
+
   const authcontext = useContext(AuthContext);
 
   const handleSaveRecord = async () => {
-    const response = await fetch('http://localhost:3000/saveRecord', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${authcontext.token}`
-      },
-      body: JSON.stringify({
-        foreheadImage,
-        crownImage,
-        comment: resultData.comment,
-        probability: resultData.probility
-      })
-    })
+    const formData = new FormData();
+    formData.append('foreheadImage', foreheadImage);
+    formData.append('crownImage', crownImage);
+    formData.append('comment', resultData.coment);
+    formData.append('probability', resultData.probility);
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data.record);
+    setIsSavingRecord(true);
+    try {
+      const response = await fetch('http://localhost:3000/predict/saveRecord', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authcontext.token}`
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const data = await response.json();
+        authcontext.setRecords((prev) => {
+          return [...prev, data.record];
+        });
+      }
+      else {
+        console.log("saveRecord error");
+      }
+
+    } catch (error) {
+      console.log(error);
     }
+    setIsSavingRecord(false);
   }
 
 
@@ -40,9 +54,11 @@ const AnalysisResult = ({ resultData, foreheadImage, crownImage }) => {
 
           {authcontext.isLoggedIn &&
             <button
+              disabled={isSavingRecord}
               onClick={handleSaveRecord}
-              className="ml-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm">
-              기록
+              className="ml-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-black transition-colors text-sm flex items-center justify-center min-w-[60px]"
+            >
+              {isSavingRecord ? <Loader2 className="w-4 h-4 animate-spin" /> : '기록'}
             </button>
           }
         </div>

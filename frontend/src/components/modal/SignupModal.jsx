@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Input from './Input';
-import { X, UserPlus } from 'lucide-react';
+import { X, UserPlus, Loader2 } from 'lucide-react';
 
 const SignupModal = ({ onLoginClick, onClose }) => {
   // form data
@@ -18,10 +18,15 @@ const SignupModal = ({ onLoginClick, onClose }) => {
   const [isEmailCertificating, setIsEmailCertificating] = useState(false);
   const [certificationNumber, setCertificationNumber] = useState('');
 
+  // UX states
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [emailVerifyError, setEmailVerifyError] = useState('');
+
   // validation errors
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
-
 
   // input handlers
   const handleInputChange = (e) => {
@@ -38,6 +43,27 @@ const SignupModal = ({ onLoginClick, onClose }) => {
       }));
     }
     if (apiError) setApiError('');
+  };
+
+  // Timer logic
+  useEffect(() => {
+    let timer;
+    if (isEmailCertificating && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      // Time expired logic if needed
+      setIsEmailCertificating(false); // Disable verification input
+      setApiError("인증 시간이 만료되었습니다. 다시 요청해주세요.");
+    }
+    return () => clearInterval(timer);
+  }, [isEmailCertificating, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return `${min < 10 ? '0' : ''}${min}:${sec < 10 ? '0' : ''}${sec}`;
   };
 
   // 회원가입 요청
@@ -69,14 +95,12 @@ const SignupModal = ({ onLoginClick, onClose }) => {
     }
 
     if (Object.keys(newErrors).length > 0) {
-      console.log(newErrors);
       setErrors(newErrors);
       return;
     }
 
     try {
-      // 백엔드 회원가입 요청 (예제 URL)
-      const response = await fetch('http://localhost:3000/main/signIn', {
+      const response = await fetch('http://localhost:3000/main/signUp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,8 +125,11 @@ const SignupModal = ({ onLoginClick, onClose }) => {
   // certification
   // 인증요청
   const handleSentCertification = async () => {
+    if (isRequesting) return;
+    setIsRequesting(true);
+    setApiError(''); // clear previous errors
+
     try {
-      setIsEmailCertificating(true);
       const response = await fetch('http://localhost:3000/main/sendEmailCode', {
         method: 'POST',
         headers: {
@@ -114,19 +141,28 @@ const SignupModal = ({ onLoginClick, onClose }) => {
       const resData = await response.json();
       if (resData.state === 'success') {
         alert(resData.message);
+        setIsEmailCertificating(true);
+        setTimeLeft(300); // Reset timer to 5 minutes
+        setErrors((prev) => ({ ...prev, email: null })); // Clear email errors
       } else {
         setIsEmailCertificating(false);
-        setApiError(resData.message || "이메일 인증에 실패했습니다.");
+        setErrors((prev) => ({ ...prev, email: resData.message || "이메일 인증에 실패했습니다." }));
       }
     } catch (error) {
       console.error("Certification Error:", error);
       setIsEmailCertificating(false);
-      setApiError("서버 연결 중 오류가 발생했습니다.");
+      setErrors((prev) => ({ ...prev, email: "서버 연결 중 오류가 발생했습니다." }));
+    } finally {
+      setIsRequesting(false);
     }
   }
 
   // 인증 확인
   const handleCertification = async () => {
+    if (isVerifying) return;
+    setIsVerifying(true);
+    setEmailVerifyError('');
+
     try {
       const response = await fetch('http://localhost:3000/main/verify_email', {
         method: 'POST',
@@ -141,20 +177,23 @@ const SignupModal = ({ onLoginClick, onClose }) => {
 
       const resData = await response.json();
       if (resData.state === 'success') {
-        alert(resData.message);
-        setIsEmailCertificating(false);
         setIsEmailCertified(true);
+        setIsEmailCertificating(false); // Stop timer and hide input
+        setEmailVerifyError('');
       } else {
-        setApiError(resData.message || "이메일 인증에 실패했습니다.");
+        setEmailVerifyError(resData.message || "이메일 인증에 실패했습니다.");
       }
     } catch (error) {
       console.error("Certification Error:", error);
-      setApiError("서버 연결 중 오류가 발생했습니다.");
+      setEmailVerifyError("서버 연결 중 오류가 발생했습니다.");
+    } finally {
+      setIsVerifying(false);
     }
   }
 
   const handleCertificationNumberChange = (e) => {
     setCertificationNumber(e.target.value);
+    if (emailVerifyError) setEmailVerifyError('');
   }
 
   return (
@@ -193,11 +232,17 @@ const SignupModal = ({ onLoginClick, onClose }) => {
           >
             <button
               type="button"
-              className={`text-blue-500 font-bold hover:underline text-sm w-12` + (isEmailCertificating ? ' opacity-50 cursor-not-allowed' : '')}
-              disabled={isEmailCertificating}
+              className={`text-blue-500 font-bold hover:underline text-sm flex items-center justify-center min-w-[48px]` + ((isEmailCertificating || isRequesting) ? ' opacity-50 cursor-not-allowed' : '')}
+              disabled={isEmailCertificating || isRequesting}
               onClick={handleSentCertification}
             >
-              요청
+              {isRequesting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : isEmailCertificating ? (
+                <span className="text-xs font-mono">{formatTime(timeLeft)}</span>
+              ) : (
+                "요청"
+              )}
             </button>
           </Input>
 
@@ -209,19 +254,23 @@ const SignupModal = ({ onLoginClick, onClose }) => {
               placeholder="인증번호를 입력해 주세요."
               value={certificationNumber}
               onChange={(e) => handleCertificationNumberChange(e)}
+              error={emailVerifyError}
             >
               <button
                 type="button"
-                className="text-blue-500 font-bold hover:underline text-sm w-12"
+                className="text-blue-500 font-bold hover:underline text-sm w-12 flex items-center justify-center"
                 onClick={handleCertification}
+                disabled={isVerifying}
               >
-                인증
+                {isVerifying ? <Loader2 className="w-4 h-4 animate-spin" /> : "인증"}
               </button>
             </Input>
           )}
 
           {isEmailCertified && (
-            <div className="text-blue-500 font-bold text-sm ml-2">이메일 인증이 완료되었습니다.</div>
+            <div className="text-blue-500 font-bold text-sm ml-2 flex items-center gap-1">
+              이메일 인증이 완료되었습니다.
+            </div>
           )}
 
           <Input

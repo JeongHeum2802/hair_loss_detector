@@ -29,16 +29,18 @@ export const AuthContextProvider = (props) => {
     localStorage.removeItem('token');
   };
 
-
   useEffect(() => {
     const fetchRecords = async () => {
+      if (!token) {
+        setRecords([]);
+        return;
+      }
       const response = await fetch("http://localhost:3000/predict/viewRecords/", {
-        method: "POST",
+        method: "GET",
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ accessToken: token })
       });
       if (response.ok) {
         const resdata = await response.json();

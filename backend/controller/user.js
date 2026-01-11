@@ -10,34 +10,21 @@ const jwt = require('jsonwebtoken');
 
 //회원가입
 exports.signUp = async (req, res, next) => {
-    try {
-        const { email, name, gender, age, password } = req.body;
+  try {
+    const { email, name, gender, age, password } = req.body;
 
-        // 이메일 인증 완료 여부 확인
-        const auth = await EmailAuth.findOne({ email });
-        if (auth) {
-            return res.send({
-                state: 'fail',
-                message: '이메일 인증을 먼저 완료하세요.'
-            });
-        }
-
-        const newPassword = await bcrypt.hash(password, 12);
-
-        user = await User.create({ email, name, gender, age, password: newPassword });
-        console.log(user);
-        console.log("회원가입 성공!");
-        return res.send({
-            message: "회원가입 성공!"
-        });
-    } catch (err) {
-        console.log(err);
-        console.log("회원가입 실패!");
+    // 이메일 인증 완료 여부 확인
+    const auth = await EmailAuth.findOne({ email });
+    if (auth) {
+      return res.send({
+        state: 'fail',
+        message: '이메일 인증을 먼저 완료하세요.'
+      });
     }
 
     const newPassword = await bcrypt.hash(password, 12);
 
-    user = await User.create({ email, name, gender, age, password: newPassword });
+    const user = await User.create({ email, name, gender, age, password: newPassword });
     console.log(user);
     console.log("회원가입 성공!");
     return res.send({
@@ -46,10 +33,6 @@ exports.signUp = async (req, res, next) => {
   } catch (err) {
     console.log(err);
     console.log("회원가입 실패!");
-    res.send({
-      state: "fail",
-      message: "회원가입 실패!"
-    });
   }
 }
 
