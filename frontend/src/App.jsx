@@ -4,8 +4,51 @@ import Header from './components/Header';
 import ImageUploadCard from './components/ImageUploadCard';
 import AnalysisResult from './components/AnalysisResult';
 import AuthModal from './components/modal/AuthModal';
+import RecordList from './components/RecordList';
 
 const App = () => {
+    const [historyRecords, setHistoryRecords] = useState([ // setHistoryRecords: 수정 권한 주기
+    {
+      _id: '1',
+      probability: 75,
+      coment: "첫 번째 진단 결과입니다.",
+      foreheadUrl: "https://via.placeholder.com/150",
+      crownUrl: "https://via.placeholder.com/150",
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: '2',
+      probability: 45,
+      coment: "상태가 조금 나아졌어요.",
+      foreheadUrl: "https://via.placeholder.com/150",
+      crownUrl: "https://via.placeholder.com/150",
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: '3',
+      probability: 45,
+      coment: "상태가 조금 나아졌어요.",
+      foreheadUrl: "https://via.placeholder.com/150",
+      crownUrl: "https://via.placeholder.com/150",
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: '4',
+      probability: 45,
+      coment: "상태가 조금 나아졌어요.",
+      foreheadUrl: "https://via.placeholder.com/150",
+      crownUrl: "https://via.placeholder.com/150",
+      createdAt: new Date().toISOString()
+    },
+    {
+      _id: '5',
+      probability: 45,
+      coment: "상태가 조금 나아졌어요.",
+      foreheadUrl: "https://via.placeholder.com/150",
+      crownUrl: "https://via.placeholder.com/150",
+      createdAt: new Date().toISOString()
+    }
+  ]);
   // ai state
   const [crownImage, setCrownImage] = useState(null); // 정수리 사진 (미리보기용)
   const [foreheadImage, setForeheadImage] = useState(null); // 이마 사진 (미리보기용)
@@ -124,7 +167,14 @@ const App = () => {
   // 기존 Login 버튼 핸들러 연결
   const handleLoginClick = () => handleAuthModalOpen('login');
 
-
+  // 삭제 수행 함수
+  const deleteRecord = (id) => {
+    if (window.confirm("이 진단 기록을 삭제하시겠습니까?")){
+      // filter를 사용해 클릭한 id만 제외한 새로운 목록을 만듭니다.
+      const updatedRecords = historyRecords.filter(record => record._id !== id);
+      setHistoryRecords(updatedRecords);
+    }
+  };
 
 
 
@@ -183,6 +233,10 @@ const App = () => {
 
         {/* 결과 섹션 (조건부 렌더링) */}
         {showResult && <AnalysisResult resultData={resultData} />}
+
+        {/*히스토리 섹션*/}
+        <hr className="my-12 border-slate-200" />
+        <RecordList historyRecords={historyRecords} />
       </main>
 
       <AuthModal
