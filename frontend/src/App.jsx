@@ -5,9 +5,10 @@ import ImageUploadCard from './components/ImageUploadCard';
 import AnalysisResult from './components/AnalysisResult';
 import AuthModal from './components/modal/AuthModal';
 import RecordList from './components/RecordList';
+import { useRecords } from './hooks/useRecords';
 
 const App = () => {
-    const [historyRecords, setHistoryRecords] = useState([ // setHistoryRecords: 수정 권한 주기
+    /*const [historyRecords, setHistoryRecords] = useState([ // setHistoryRecords: 수정 권한 주기
     {
       _id: '1',
       probability: 75,
@@ -48,7 +49,8 @@ const App = () => {
       crownUrl: "https://via.placeholder.com/150",
       createdAt: new Date().toISOString()
     }
-  ]);
+  ]); 삭제 예정 */
+  const { historyRecords, removeRecord } = useRecords();
   // ai state
   const [crownImage, setCrownImage] = useState(null); // 정수리 사진 (미리보기용)
   const [foreheadImage, setForeheadImage] = useState(null); // 이마 사진 (미리보기용)
@@ -236,7 +238,11 @@ const App = () => {
 
         {/*히스토리 섹션*/}
         <hr className="my-12 border-slate-200" />
-        <RecordList historyRecords={historyRecords} />
+        {/*<RecordList historyRecords={historyRecords} /> 삭제 예정*/}
+        <RecordList 
+          historyRecords={historyRecords} 
+          onDelete={removeRecord} 
+        />
       </main>
 
       <AuthModal
