@@ -16,4 +16,8 @@ router.post('/sendEmailCode', userController.sendEmailCode);
 //코드 비교
 router.post('/verify_email', userController.verifyEmailCode);
 
+//회원 탈퇴 (인증 필요)
+const { verifyAccess } = require('../middleware/jwtMiddleware');
+router.post('/deleteUser', verifyAccess, userController.deleteUser);
+
 module.exports = router;

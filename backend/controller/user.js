@@ -3,6 +3,8 @@ require('dotenv').config();
 const User = require('../model/user');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const Record = require('../model/record');
+const cloudinary = require('../config/cloudinary');
 const EmailAuth = require('../model/emailAuth');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
@@ -99,6 +101,58 @@ exports.logOut = async (req, res, next) => {
 
   res.clearCookie('refreshToken');
   res.send({ message: '로그아웃' })
+};
+
+//회원 탈퇴
+exports.deleteUser = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    console.log(`[Delete User Request] User ID: ${userId}`);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    // 1. 해당 유저의 모든 기록 조회
+    const records = await Record.find({ userId });
+
+    // 2. Cloudinary 이미지 삭제
+    const deletePromises = [];
+    records.forEach(record => {
+      if (record.foreheadPic?.publicId) {
+        deletePromises.push(cloudinary.uploader.destroy(record.foreheadPic.publicId));
+      }
+      if (record.crownPic?.publicId) {
+        deletePromises.push(cloudinary.uploader.destroy(record.crownPic.publicId));
+      }
+    });
+
+    if (deletePromises.length > 0) {
+      await Promise.all(deletePromises);
+      console.log(`[Delete User] Deleted ${deletePromises.length} images from Cloudinary.`);
+    }
+
+    // 3. 기록 데이터 삭제
+    await Record.deleteMany({ userId });
+    console.log(`[Delete User] Deleted ${records.length} records.`);
+
+    // 4. 이메일 인증 데이터 삭제 (혹시 남아있다면)
+    await EmailAuth.deleteMany({ email: user.email });
+
+    // 5. 유저 삭제
+    await User.findByIdAndDelete(userId);
+    console.log(`[Delete User] User deleted successfully.`);
+
+    // 6. 쿠키 삭제
+    res.clearCookie('refreshToken');
+
+    res.status(200).json({ message: "회원 탈퇴가 완료되었습니다." });
+
+  } catch (err) {
+    console.error("[Delete User Error]", err);
+    res.status(500).json({ message: "회원 탈퇴 처리 중 오류가 발생했습니다." });
+  }
 };
 
 //6자리 난수 생성 함수
