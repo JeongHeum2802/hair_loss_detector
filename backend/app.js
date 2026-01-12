@@ -16,10 +16,10 @@ app.use('/main', userRoutes);
 app.use('/predict', recordRoutes);
 
 // 프론트 정적 파일 서빙
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, './dist')));
 
 app.get(/^(.*)$/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, './dist/index.html'));
 });
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
