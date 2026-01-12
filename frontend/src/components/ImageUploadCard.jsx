@@ -1,4 +1,3 @@
-import React from 'react';
 import { Camera, RefreshCcw } from 'lucide-react';
 
 const ImageUploadCard = ({ label, image, onImageChange, onRemove, inputId }) => {

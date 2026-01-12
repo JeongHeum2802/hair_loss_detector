@@ -1,5 +1,5 @@
 import { Layout, RefreshCcw } from 'lucide-react';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import AuthContext from '../store/auth-context';
 import { API_BASE_URL } from '../config/api';
 

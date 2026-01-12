@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import Header from './components/Header';
 import ImageUploadCard from './components/ImageUploadCard';
@@ -6,7 +6,6 @@ import AnalysisResult from './components/AnalysisResult';
 import AuthModal from './components/modal/AuthModal';
 import RecordList from './components/RecordList';
 
-import { AuthContextProvider } from './store/auth-context';
 import AuthContext from './store/auth-context';
 import { AI_API_BASE_URL } from './config/api';
 

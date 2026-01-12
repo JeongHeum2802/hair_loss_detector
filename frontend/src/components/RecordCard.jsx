@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
 import AuthContext from '../store/auth-context';
 import { API_BASE_URL } from '../config/api';
