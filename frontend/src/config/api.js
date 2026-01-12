@@ -7,5 +7,5 @@ const isDev = import.meta.env.MODE === 'development';
 export const API_BASE_URL = isDev ? `http://${YOUR_IP_ADDRESS}:3000` : '';
 
 const AI_CLOUD_URL = 'https://hair-loss-detector-ai-186015486455.asia-northeast3.run.app';
-//export const AI_API_BASE_URL = isDev ? `http://${YOUR_IP_ADDRESS}:8000` : AI_CLOUD_URL;
-export const AI_API_BASE_URL = "http://116.35.37.208:25565";
+export const AI_API_BASE_URL = isDev ? `http://${YOUR_IP_ADDRESS}:8000` : AI_CLOUD_URL;
+// export const AI_API_BASE_URL = "http://116.35.37.208:25565";
