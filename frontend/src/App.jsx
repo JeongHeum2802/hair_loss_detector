@@ -107,16 +107,6 @@ const App = () => {
       crownFormData.append("file", crownFile);
 
       // 2. ai api 호출
-      // const [foreheadRes, crownRes] = await Promise.all([
-      //   fetch(`${AI_API_BASE_URL}/predict/forehead`, {
-      //     method: "POST",
-      //     body: foreheadFormData,
-      //   }),
-      //   fetch(`${AI_API_BASE_URL}/predict/crown`, {
-      //     method: "POST",
-      //     body: crownFormData,
-      //   }),
-      // ]);
       const [foreheadRes, crownRes] = await Promise.all([
         fetch(`${AI_API_BASE_URL}/predict/forehead`, {
           method: "POST",
@@ -189,15 +179,18 @@ const App = () => {
   // 기존 Login 버튼 핸들러 연결
   const handleLoginClick = () => handleAuthModalOpen('login');
 
-  // 삭제 수행 함수
-  const deleteRecord = (id) => {
-    if (window.confirm("이 진단 기록을 삭제하시겠습니까?")) {
-      // filter를 사용해 클릭한 id만 제외한 새로운 목록을 만듭니다.
-      const updatedRecords = historyRecords.filter(record => record._id !== id);
-      setHistoryRecords(updatedRecords);
-    }
-  };
+  // 이미지 제거 핸들러
+  const handleClearImageCrown = () => {
+    setCrownImage(null);
+    setCrownFile(null);
+    localStorage.removeItem('saved_crown_image');
+  }
 
+  const handleClearImageForehead = () => {
+    setForeheadImage(null);
+    setForeheadFile(null);
+    localStorage.removeItem('saved_forehead_image');
+  }
 
 
   return (
@@ -219,14 +212,14 @@ const App = () => {
             label="정수리 사진"
             image={crownImage}
             onImageChange={(e) => handleImageChange(e, 'crown')}
-            onRemove={() => setCrownImage(null)}
+            onRemove={handleClearImageCrown}
             inputId="crown-upload"
           />
           <ImageUploadCard
             label="이마 사진"
             image={foreheadImage}
             onImageChange={(e) => handleImageChange(e, 'forehead')}
-            onRemove={() => setForeheadImage(null)}
+            onRemove={handleClearImageForehead}
             inputId="forehead-upload"
           />
         </div>
