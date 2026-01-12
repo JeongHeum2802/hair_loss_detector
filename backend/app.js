@@ -24,8 +24,10 @@ app.get(/^(.*)$/, (req, res) => {
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
   console.log("몽고디비 연결 성공!");
-  app.listen(3000, '0.0.0.0');
-  console.log("서버 연결 성공! (0.0.0.0:3000)");
+  const port = process.env.PORT || 3000;
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`서버 연결 성공! (0.0.0.0:${port})`);
+  });
 }).catch(err => {
   console.log(err);
 })
