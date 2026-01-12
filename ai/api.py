@@ -1,0 +1,63 @@
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from contextlib import asynccontextmanager
+import uvicorn
+import shutil
+import os
+from predict import load_model, predict_image
+from fastapi.middleware.cors import CORSMiddleware
+models = {}
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load models on startup
+    print("Loading models...")
+    try:
+        models['forehead'] = load_model('forehead')
+        models['crown'] = load_model('crown')
+        print("Models loaded successfully.")
+    except Exception as e:
+        print(f"Error loading models: {e}")
+    yield
+    # Clean up models on shutdown
+    models.clear()
+    print("Models cleaned up.")
+
+app = FastAPI(lifespan=lifespan)
+
+# CORS 미들웨어 추가
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 모든 도메인에서의 요청 허용 (실제 배포 시에는 구체적인 도메인 지정 권장)
+    allow_credentials=True,
+    allow_methods=["*"],  # 모든 HTTP Method 허용 (GET, POST 등)
+    allow_headers=["*"],  # 모든 헤더 허용
+)
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+@app.post("/predict/{model_type}")
+async def predict(model_type: str, file: UploadFile = File(...)):
+    if model_type not in ['forehead', 'crown']:
+        raise HTTPException(status_code=400, detail="Invalid model type. Choose 'forehead' or 'crown'.")
+    
+    if model_type not in models:
+        raise HTTPException(status_code=500, detail="Model not loaded.")
+
+    # Save uploaded file temporarily
+    temp_filename = f"temp_{file.filename}"
+    with open(temp_filename, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+    
+    try:
+        result = predict_image(models[model_type], temp_filename, model_type)
+        return result
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_filename):
+            os.remove(temp_filename)
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 25565))
+    uvicorn.run(app, host="0.0.0.0", port=port)
