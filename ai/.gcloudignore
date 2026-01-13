@@ -9,3 +9,5 @@ env/
 venv/
 .env
 .DS_Store
+dataSet/
+train.py

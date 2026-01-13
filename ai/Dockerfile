@@ -13,8 +13,15 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
   pip install --no-cache-dir -r requirements.txt
 
+COPY models/ models/
+
 # 5. Copy Application Code
 COPY . .
+
+ENV TF_ENABLE_ONEDNN_OPTS=0
+ENV OMP_NUM_THREADS=1
+ENV TF_NUM_INTRAOP_THREADS=1
+ENV TF_NUM_INTEROP_THREADS=1
 
 # 6. Run Application
 # Use shell form to allow variable expansion for ${PORT}
